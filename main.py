@@ -1,4 +1,6 @@
 # --- Импорты ---
+import random
+import math
 import time
 from luckytools import LuckyTools
 from datetime import datetime
@@ -13,8 +15,7 @@ import re
 import asyncio
 import random
 from random import randint
-import random
-import math
+import main2
 
 # --- Переменные ---
 ingridients = {
@@ -359,14 +360,11 @@ def open_menu_standart(menu, cart, age, balance, bonus):
     rolls_in_category = [item for item in menu if item["category"] == selected_category]
 
     print("\n" * 1)
-    tools.fade_print(f"⇌ Выберите блюдо из категории '{selected_category}':", white_tag=True, time_show=0.01,
-                     color="ffffff")
+    tools.fade_print(f"⇌ Выберите блюдо из категории '{selected_category}':", white_tag=True, time_show=0.01,color="ffffff")
     for i, roll in enumerate(rolls_in_category):
-        tools.fade_print(f"| {i + 1}. {roll['name']} - {roll['price_rub']} руб.", white_tag=True, time_show=0.01,
-                         color="b5b5b5")
+        tools.fade_print(f"| {i + 1}. {roll['name']} - {roll['price_rub']} руб.", white_tag=True, time_show=0.01,color="b5b5b5")
 
-    tools.fade_print(f"| {len(rolls_in_category) + 1}. Назад к категориям", white_tag=True, time_show=0.01,
-                     color="b5b5b5")
+    tools.fade_print(f"| {len(rolls_in_category) + 1}. Назад к категориям", white_tag=True, time_show=0.01,color="b5b5b5")
 
     roll_index = new_input("", max_val=len(rolls_in_category) + 1)
     if roll_index == len(rolls_in_category) + 1:
@@ -458,7 +456,6 @@ def open_menu(menu, cart, age, balance, bonus):
 
 # --- Корзина и оплата ---
 def pay_card(cart, final_price, balance):
-    asyncio.run(shitaem_total_recursive("банковской карты"))  # Оставил, как ты просил не убирать
     print("\n" * 1)
     tools.fade_print("- Оформление заказа", white_tag=True, time_show=0.01, color="ffffff")
 
@@ -484,54 +481,100 @@ def pay_cash(cart, final_price):
     tools.fade_print("Ваш заказ принят. Ожидайте звонка оператора.", white_tag=True, time_show=0.01, color="b5b5b5")
 
 
+
 def open_cart(menu, cart, age, balance, bonus):
     print("\n" * 2)
     if not cart:
-        tools.fade_print("⇌ Корзина пуста.", white_tag=True, time_show=0.01, color="ffffff")
-        tools.fade_print("| 1. Назад", white_tag=True, time_show=0.01, color="b5b5b5")
+        tools.fade_print(
+            "⇌ Корзина пуста.", white_tag=True, time_show=0.01, color="ffffff"
+        )
+        tools.fade_print(
+            "| 1. Назад", white_tag=True, time_show=0.01, color="b5b5b5"
+        )
         if new_input("", max_val=1) == 1:
             return main_menu(menu, cart, age, balance, bonus)
         return main_menu(menu, cart, age, balance, bonus)
 
     final_price = shitaem_total_recursive(cart)
 
-    tools.fade_print("⇌ Ваша Корзина", white_tag=True, time_show=0.01, color="ffffff")
+    tools.fade_print(
+        "⇌ Ваша Корзина", white_tag=True, time_show=0.01, color="ffffff"
+    )
     for i, item in enumerate(cart):
-        tools.fade_print(f"| {i + 1}. {item['name']} ({item['category']}) - {item['price_rub']} руб", white_tag=True,
-                         time_show=0.01, color="b5b5b5")
+        tools.fade_print(
+            f"| {i + 1}. {item['name']} ({item['category']}) - {item['price_rub']} руб",white_tag=True,time_show=0.01,color="b5b5b5")
 
-    tools.fade_print(f"| --- Итого: {final_price} руб ---------", white_tag=True, time_show=0.01, color="ffffff")
-    tools.fade_print(f"| 1. Оформить заказ", white_tag=True, time_show=0.01, color="b5b5b5")
-    tools.fade_print(f"| 2. Назад", white_tag=True, time_show=0.01, color="b5b5b5")
+    recs = main2.get_recommendations(cart, menu, top_n=3)
+    if recs:
+        tools.fade_print(
+            "\nрекомендуем к вашему заказу:",white_tag=True,time_show=0.01,color="ffd700")
+        for i, rec in enumerate(recs):
+            tools.fade_print(
+                f"| + {i + 1}. {rec['name']} ({rec['category']}) - {rec['price_rub']} руб",white_tag=True,time_show=0.01,color="b5b5b5")
 
-    action_choice = new_input("", max_val=2)
 
-    if action_choice == 2:
+    tools.fade_print(
+        f"\n| Итого: {final_price} руб ",white_tag=True,time_show=0.01,color="ffffff")
+    tools.fade_print(
+        f"| 1. Оформить заказ", white_tag=True, time_show=0.01, color="b5b5b5"
+    )
+    tools.fade_print(
+        f"| 2. Добавить блюдо из рекомендаций",
+        white_tag=True,time_show=0.01,color="b5b5b5")
+    tools.fade_print(f"| 3. Назад", white_tag=True, time_show=0.01, color="b5b5b5")
+
+    action_choice = new_input("", max_val=3)
+
+    if action_choice == 2 and recs:
+        tools.fade_print(
+            "Выберите номер блюда для добавления:",white_tag=True,time_show=0.01,color="ffffff",)
+        rec_choice = new_input("", max_val=len(recs))
+        chosen_dish = recs[rec_choice - 1].copy()
+        chosen_dish["quantity"] = 1
+        cart.append(chosen_dish)
+        tools.fade_print(
+            f"✓ {chosen_dish['name']} добавлено в корзину!",white_tag=True,time_show=1,color="00ff00")
+        return open_cart(menu, cart, age, balance, bonus)
+
+    if action_choice == 3:
         return main_menu(menu, cart, age, balance, bonus)
 
-    tools.fade_print("\n⇌ Выберите способ оплаты", white_tag=True, time_show=0.01, color="ffffff")
-    tools.fade_print(f"| 1. Оплата с баланса", white_tag=True, time_show=0.01, color="b5b5b5")
-    tools.fade_print(f"| 2. Наличными при получении", white_tag=True, time_show=0.01, color="b5b5b5")
+    tools.fade_print(
+        "\n⇌ Выберите способ оплаты",white_tag=True,time_show=0.01,color="ffffff")
+    tools.fade_print(
+        f"| 1. Оплата по карте", white_tag=True, time_show=0.01, color="b5b5b5"
+    )
+    tools.fade_print(
+        f"| 2. Наличными при получении",white_tag=True,time_show=0.01,color="b5b5b5")
 
     payment_choice = new_input("", max_val=2)
 
     if payment_choice == 1:
-        if balance < final_price:
-            tools.fade_print(f"✕ Недостаточно средств на балансе ({balance} руб). Нужно {final_price} руб.",
-                             white_tag=True, time_show=3, color="ff0000")
-            tools.fade_print(f"| Пополните баланс в разделе 'Моя KASHOLKA'.", white_tag=True, time_show=2,
-                             color="b5b5b5")
+        if balance >= final_price:
+            balance -= final_price
+            pay_card(cart, final_price, balance)
+            cart.clear()
             return main_menu(menu, cart, age, balance, bonus)
-
-        balance -= final_price
-        pay_card(cart, final_price, balance)
-        cart.clear()
-        return main_menu(menu, cart, age, balance, bonus)
+        else:
+            tools.fade_print(
+                f"✕ Недостаточно средств на балансе ({balance} руб). Нужно {final_price} руб.",
+                white_tag=True,
+                time_show=3,
+                color="ff0000",
+            )
+            tools.fade_print(
+                f"| Пополните баланс в разделе 'Моя KASHOLKA'.",
+                white_tag=True,
+                time_show=2,
+                color="b5b5b5",
+            )
+            return main_menu(menu, cart, age, balance, bonus)
 
     elif payment_choice == 2:
         pay_cash(cart, final_price)
         cart.clear()
         return main_menu(menu, cart, age, balance, bonus)
+
 
 
 # --- Основное меню ---
@@ -574,7 +617,6 @@ def open_cash(menu, cart, age, balance, bonus):
             return main_menu(menu, cart, age, balance, bonus)
         else:
             print('неправильный ввод ')
-
 
 @require_working_hours
 def run_app():

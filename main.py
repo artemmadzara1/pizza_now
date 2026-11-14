@@ -48,6 +48,7 @@ menu_18 = [
      "price_rub": 1800.0}
 ]
 
+
 # --- Декораторы ---
 def require_working_hours(func):
     def wrapper(*args, **kwargs):
@@ -57,6 +58,7 @@ def require_working_hours(func):
         tools.fade_print(f"✕ Мы работаем с 7:00 до 23:00", white_tag=True, time_show=3,
                          color="ff0000")
         return None
+
     return wrapper
 
 
@@ -65,6 +67,8 @@ def shitaem_total_recursive(cart, index=0):
     if index == len(cart):
         return 0
     return cart[index]["price_rub"] + shitaem_total_recursive(cart, index + 1)
+
+
 async def process_order():
     tools.fade_print(f"⟳ Установка защищенного соединения...", white_tag=True, time_show=0.01, color="b5b5b5")
     await asyncio.sleep(1)
@@ -73,7 +77,8 @@ async def process_order():
     tools.fade_print("✓ Транзакция подтверждена сервером", white_tag=True, time_show=0.5, color="00ff00")
 
 
-def get_captcha(width=200, height=100): # https://docs-python.ru/packages/veb-frejmvork-flask-python/generatsiia-svoei-kapchi/
+def get_captcha(width=200,
+                height=100):  # https://docs-python.ru/packages/veb-frejmvork-flask-python/generatsiia-svoei-kapchi/
     code = ''.join([random.choice('АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ') for i in range(5)])
     # random_word = random.choice(["Тут была конф информация"])
     # code = random_word
@@ -99,6 +104,7 @@ def get_captcha(width=200, height=100): # https://docs-python.ru/packages/veb-fr
 
     img.save("captha.png", "PNG")
     return code
+
 
 def new_input(prompt_text, max_val=sys.maxsize, min_val=1):
     try:
@@ -144,10 +150,10 @@ def get_age_and_name():
         email = input("› ").lower()
         if email in information:
             user_data = information[email]
-            
+
             tools.fade_print("Пожалуйста введите пароль:", white_tag=True, time_show=0.01)
             password_input = input("› ")
-            
+
             if user_data.get("password") == password_input:
                 return user_data["age"], user_data["name"], user_data["phone"], email
             else:
@@ -202,8 +208,9 @@ def get_age_and_name():
         tools.fade_print("Пожалуйста введите свой email:", white_tag=True,
                          time_show=0.01)
         email_input = input("› ").lower()
-        if bool(re.fullmatch(r"""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"""
-, email_input)):
+        if bool(re.fullmatch(
+                r"""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"""
+                , email_input)):
             if email_input in information:
                 tools.fade_print("✕ Эта почта уже зарегистрирована. Попробуйте войти.",
                                  white_tag=True, time_show=3, color="ffb300")
@@ -229,6 +236,7 @@ def get_age_and_name():
             tools.fade_print(f"✕ Почта введена неверно.",
                              white_tag=True,
                              time_show=3, color="ff0000")
+
 
 def display_image_from_url(url, w=180):
     def pil_to_ascii_color(image):  # Нашел эту штуку в интернете
@@ -449,27 +457,24 @@ def open_menu(menu, cart, age, balance, bonus):
 
 
 # --- Корзина и оплата ---
-def pay_card(cart, final_price):
-    asyncio.run(shitaem_total_recursive("банковской карты"))
+def pay_card(cart, final_price, balance):
+    asyncio.run(shitaem_total_recursive("банковской карты"))  # Оставил, как ты просил не убирать
     print("\n" * 1)
-    tools.fade_print("- Оформление заказа (Карта) -", white_tag=True, time_show=0.01, color="ffffff")
+    tools.fade_print("- Оформление заказа", white_tag=True, time_show=0.01, color="ffffff")
 
     for item in cart:
         tools.fade_print(f"| {item['name']} - {item['price_rub']} руб", white_tag=True, time_show=0.01, color="b5b5b5")
 
     tools.fade_print(f"- Итого: {final_price} руб.", white_tag=True, time_show=0.01, color="ffffff")
-    tools.fade_print(f"- Статус: Ожидание оплаты.", white_tag=True, time_show=0.01, color="ffffff")
-    tools.fade_print(f"Для оплаты, переведите {final_price} рублей на номер:", white_tag=True, time_show=0.01,
-                     color="b5b5b5")
-    tools.fade_print(f"--- +7 923 504 68-72 ---", white_tag=True, time_show=0.01)
-    tools.fade_print(f"После перевода, заказ будет принят. Мы свяжемся с вами для уточнения деталей.", white_tag=True,
-                     time_show=0.01, color="b5b5b5")
+    tools.fade_print(f"- Списано с баланса: {final_price} руб.", white_tag=True, time_show=0.01, color="ffffff")
+    tools.fade_print(f"- Остаток на балансе: {balance} руб.", white_tag=True, time_show=0.01, color="00ff00")
+    tools.fade_print(f"- Статус: Оплачено.", white_tag=True, time_show=0.01, color="ffffff")
 
 
 def pay_cash(cart, final_price):
     asyncio.run(process_order())
     print("\n" * 1)
-    tools.fade_print("- Оформление заказа (Наличными) -", white_tag=True, time_show=0.01, color="ffffff")
+    tools.fade_print("Оформление заказа", white_tag=True, time_show=0.01, color="ffffff")
 
     for item in cart:
         tools.fade_print(f"| {item['name']} - {item['price_rub']} руб", white_tag=True, time_show=0.01, color="b5b5b5")
@@ -505,16 +510,28 @@ def open_cart(menu, cart, age, balance, bonus):
         return main_menu(menu, cart, age, balance, bonus)
 
     tools.fade_print("\n⇌ Выберите способ оплаты", white_tag=True, time_show=0.01, color="ffffff")
-    tools.fade_print(f"| 1. Оплата картой", white_tag=True, time_show=0.01, color="b5b5b5")
+    tools.fade_print(f"| 1. Оплата с баланса", white_tag=True, time_show=0.01, color="b5b5b5")
     tools.fade_print(f"| 2. Наличными при получении", white_tag=True, time_show=0.01, color="b5b5b5")
 
     payment_choice = new_input("", max_val=2)
 
     if payment_choice == 1:
+        if balance < final_price:
+            tools.fade_print(f"✕ Недостаточно средств на балансе ({balance} руб). Нужно {final_price} руб.",
+                             white_tag=True, time_show=3, color="ff0000")
+            tools.fade_print(f"| Пополните баланс в разделе 'Моя KASHOLKA'.", white_tag=True, time_show=2,
+                             color="b5b5b5")
+            return main_menu(menu, cart, age, balance, bonus)
+
         balance -= final_price
-        pay_card(cart, final_price)
+        pay_card(cart, final_price, balance)
+        cart.clear()
+        return main_menu(menu, cart, age, balance, bonus)
+
     elif payment_choice == 2:
         pay_cash(cart, final_price)
+        cart.clear()
+        return main_menu(menu, cart, age, balance, bonus)
 
 
 # --- Основное меню ---
@@ -547,18 +564,16 @@ def open_cash(menu, cart, age, balance, bonus):
     tools.fade_print(f"| 1. Назад", white_tag=True, time_show=0.01, color="b5b5b5")
     tools.fade_print(f"| 2. поплнить балик\n", white_tag=True, time_show=0.01, color="b5b5b5")
     while True:
-        a =int(input())
-        if a==2:
-            ball=int(input("сколько деняг хотите\n"))
-            if 0<ball<1000000000000000000000000000000000000000:
-                balance+=ball
+        a = int(input())
+        if a == 2:
+            ball = int(input("сколько деняг хотите\n"))
+            if 0 < ball < 1000000000000000000000000000000000000000:
+                balance += ball
                 return main_menu(menu, cart, age, balance, bonus)
         elif a == 1:
             return main_menu(menu, cart, age, balance, bonus)
         else:
             print('неправильный ввод ')
-
-
 
 
 @require_working_hours
@@ -590,11 +605,11 @@ def run_app():
 if __name__ == "__main__":
     tools = LuckyTools(prefix_short="⌊ УниКапча ⌉ »", show_init=False)
     while True:
-        code = get_captcha(600,100)
+        code = get_captcha(600, 100)
         display_image_from_url("captha.png")
         tools.fade_print("Введите код  или debug", white_tag=True, time_show=1)
         enter = input("> ")
-        if enter.lower() == code.lower() or enter=="debug":
+        if enter.lower() == code.lower() or enter == "debug":
             tools.fade_print("Верный код, спасибо за прохождение проверки!", white_tag=True, time_show=1)
             tools = LuckyTools(prefix_short="⌊ Tatsumaki ⌉ »", show_init=False)
             run_app()
